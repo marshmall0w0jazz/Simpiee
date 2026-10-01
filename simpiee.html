@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SimPiee</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;600;700&family=Lobster&family=Pacifico&family=Oswald:wght@500;700&family=Cormorant+Garamond:wght@600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--pg:#15803D;}
+  body{font-family:'Inter',sans-serif;background:#F8FAFC;color:#0f172a;}
+  .card{background:#fff;border-radius:1rem;box-shadow:0 1px 3px rgba(15,23,42,.08);}
+  .inp{width:100%;border:1.5px solid #e2e8f0;border-radius:.6rem;padding:.5rem .75rem;font-size:.9rem;outline:none;background:#fff;}
+  .inp:focus{border-color:var(--pg);box-shadow:0 0 0 3px rgba(21,128,61,.12);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border-radius:.7rem;font-weight:600;font-size:.88rem;padding:.55rem 1rem;cursor:pointer;border:none;}
+  .pri{background:var(--pg);color:#fff;} .pri:hover{background:#166534;}
+  .gho{background:#f1f5f9;color:#334155;} .gho:hover{background:#e2e8f0;}
+  .sel{outline:3px solid var(--pg);outline-offset:2px;}
+  .tab{display:flex;align-items:center;gap:.6rem;padding:.65rem .85rem;border-radius:.8rem;font-size:.92rem;font-weight:600;color:#475569;cursor:pointer;}
+  .tab:hover{background:#f1f5f9;} .tab.on{background:#dcfce7;color:#166534;}
+  .lbl{font-size:.75rem;font-weight:600;color:#64748b;display:block;margin-bottom:.25rem;}
+
+  /* ===== Menu canvas (what gets downloaded) ===== */
+  .mc{background:var(--bg);color:var(--fg);padding:36px 32px;font-family:var(--bf,'Inter'),sans-serif;}
+  .mc h1{font-family:var(--hf);font-weight:700;font-size:36px;line-height:1.1;color:var(--ac);text-align:center;}
+  .mc .tg{text-align:center;color:var(--mut);font-size:13px;margin:6px 0 26px;}
+  .mc .cv{height:160px;margin:-36px -32px 22px;overflow:hidden;}
+  .mc .lg{width:72px;height:72px;margin:0 auto 12px;border-radius:50%;overflow:hidden;background:#fff;}
+  .mc .sl{text-align:center;font-family:var(--hf);font-size:20px;color:var(--ac);margin-top:28px;}
+  .mc .ct{text-align:center;font-size:12px;color:var(--mut);margin-top:8px;white-space:pre-line;}
+  .mc .ph{background:rgba(127,127,127,.18);display:flex;align-items:center;justify-content:center;font-size:30px;width:100%;height:100%;}
+  .mc img{width:100%;height:100%;object-fit:cover;display:block;}
+  .mc .nm{font-weight:600;} .mc .ds{font-size:12px;color:var(--mut);margin-top:2px;} .mc .pr{font-weight:700;color:var(--ac);}
+  .l-list .it{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--mut);}
+  .l-list .th{width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0;}
+  .l-list .bd,.l-card .bd{flex:1;}
+  .l-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .l-grid .it{border-radius:14px;overflow:hidden;background:var(--card);}
+  .l-grid .th{height:130px;} .l-grid .bd{padding:10px 12px 12px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+  .l-hero .big{height:240px;border-radius:16px;overflow:hidden;position:relative;margin-bottom:18px;}
+  .l-hero .cap{position:absolute;left:0;right:0;bottom:0;padding:14px 16px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;display:flex;justify-content:space-between;align-items:flex-end;}
+  .l-hero .cap .pr{color:#fff;font-size:20px;}
+  .l-hero .it{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid rgba(127,127,127,.3);}
+  .l-split .it{display:flex;gap:18px;align-items:center;margin-bottom:18px;}
+  .l-split .it:nth-child(even){flex-direction:row-reverse;text-align:right;}
+  .l-split .th{width:46%;height:120px;border-radius:12px;overflow:hidden;flex-shrink:0;}
+  .l-split .bd{flex:1;}
+  .l-min{columns:2;column-gap:36px;}
+  .l-min .it{break-inside:avoid;margin-bottom:16px;}
+  .l-min .rw{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--mut);padding-bottom:3px;}
+  .l-dots .it{margin-bottom:14px;} .l-dots .rw{display:flex;align-items:baseline;gap:6px;} .l-dots .dl{flex:1;border-bottom:2px dotted var(--mut);transform:translateY(-3px);}
+  .l-tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .l-tiles .it{position:relative;height:170px;border-radius:14px;overflow:hidden;}
+  .l-tiles .cap{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;background:linear-gradient(transparent,rgba(0,0,0,.8));color:#fff;}
+  .l-tiles .pr{color:#fff;}
+  .l-card .it{display:flex;gap:14px;align-items:center;background:var(--card);border-radius:16px;padding:12px;margin-bottom:12px;}
+  .l-card .th{width:84px;height:84px;border-radius:12px;overflow:hidden;flex-shrink:0;}
+  .l-card .pr{background:var(--ac);color:var(--bg);padding:4px 12px;border-radius:99px;font-size:13px;}
+  .l-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .l-trio .it{text-align:center;font-size:13px;} .l-trio .th{aspect-ratio:1;border-radius:50%;overflow:hidden;margin-bottom:6px;}
+  .l-board{text-align:center;} .l-board .it{margin-bottom:16px;} .l-board .nm{font-size:17px;}
+  .mc .sec{margin:24px 0 12px;} .samp .sec{margin:0 !important;}
+  .mc .sh{font-family:var(--hf);font-weight:700;font-size:20px;color:var(--ac);} .mc .ss{font-size:12px;color:var(--mut);margin-top:3px;}
+  .mc .h-line .sh{border-bottom:2px solid var(--ac);padding-bottom:4px;}
+  .mc .h-band .sh{background:var(--ac);color:var(--bg);padding:6px 12px;border-radius:6px;}
+  .mc .h-center{text-align:center;} .mc .h-center .sh{display:flex;align-items:center;gap:12px;} .mc .h-center .sh::before,.mc .h-center .sh::after{content:'';flex:1;height:1px;background:var(--ac);}
+  .mc .h-box{text-align:center;} .mc .h-box .sh{display:inline-block;border:2px solid var(--ac);padding:4px 18px;border-radius:4px;}
+  .mc .h-side .sh{border-left:6px solid var(--ac);padding-left:10px;font-size:22px;}
+  .mc .h-script{text-align:center;} .mc .h-script .sh{font-style:italic;font-size:26px;font-weight:600;}
+  .mc .h-dots .sh{border-bottom:3px dotted var(--ac);padding-bottom:4px;}
+  .mc .h-pill{text-align:center;} .mc .h-pill .sh{display:inline-block;background:var(--ac);color:var(--bg);padding:5px 20px;border-radius:99px;font-size:17px;}
+  .mc .h-double{text-align:center;} .mc .h-double .sh{border-top:1px solid var(--ac);border-bottom:1px solid var(--ac);padding:6px 0;letter-spacing:2px;text-transform:uppercase;font-size:16px;}
+  .mc .h-ribbon .sh{display:inline-block;background:var(--ac);color:var(--bg);padding:6px 28px 6px 14px;clip-path:polygon(0 0,100% 0,calc(100% - 12px) 50%,100% 100%,0 100%);}
+  .mc .h-caps{text-align:center;} .mc .h-caps .sh{text-transform:uppercase;letter-spacing:5px;font-size:15px;}
+  .mc .h-bar .sh::after{content:'';display:block;width:46px;height:4px;background:var(--ac);border-radius:4px;margin-top:6px;}
+  .mc .h-stamp .sh{display:inline-block;border:2px solid var(--ac);padding:4px 14px;box-shadow:4px 4px 0 var(--ac);}
+  .mc .h-brackets{text-align:center;} .mc .h-brackets .sh::before{content:'❮ ';} .mc .h-brackets .sh::after{content:' ❯';}
+  .phone{width:310px;background:#0f172a;border-radius:38px;padding:12px;box-shadow:0 20px 40px rgba(15,23,42,.25);}
+  .screen{height:580px;overflow-y:auto;border-radius:28px;background:#fff;}
+  .phone .mc{padding:24px 16px;} .phone .mc h1{font-size:28px;} .phone .mc .cv{margin:-24px -16px 16px;} .phone .l-min{columns:1;} .phone .l-grid .th{height:100px;}
+  @media print{body *{visibility:hidden;} #canvas,#canvas *{visibility:visible;} #canvas{position:absolute;left:0;top:0;width:100%;}}
+</style>
+</head>
+<body>
+
+<!-- ============ LEFT SIDEBAR ============ -->
+<aside id="side" class="fixed inset-y-0 left-0 w-60 bg-white border-r z-40 flex flex-col -translate-x-full md:translate-x-0 transition-transform">
+  <div class="flex items-center gap-2 px-4 py-4 border-b"><div class="w-9 h-9 rounded-xl bg-green-700 text-white font-extrabold flex items-center justify-center">S</div><span class="font-extrabold text-lg">Sim<span class="text-green-700">Piee</span></span></div>
+  <nav id="nav" class="p-3 space-y-1 flex-1 overflow-y-auto"></nav>
+</aside>
+<div id="ov" class="fixed inset-0 bg-black/30 z-30 hidden md:hidden" onclick="side(false)"></div>
+<div id="wrap" class="md:ml-60">
+  <header id="mh" class="md:hidden sticky top-0 z-20 bg-white border-b px-3 py-2.5 flex items-center gap-3">
+    <button class="btn gho !px-3" onclick="side(true)">☰</button><span class="font-extrabold">Sim<span class="text-green-700">Piee</span></span>
+  </header>
+  <main id="page" class="max-w-6xl mx-auto p-4 md:p-6"></main>
+</div>
+
+<script>
+/* ==================== STATE ==================== */
+const BRAND='SimPiee';
+const CUR='₹';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>CUR+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+const $=id=>document.getElementById(id);
+const r5=n=>Math.round(n/5)*5;
+const defaults={
+  biz:{name:'',city:'',margin:30},
+  items:[],
+  d:{layout:'list',theme:'spice',custom:{},title:'Main Menu',tag:'',slogan:'',contact:'',logo:'',cover:'',hfont:'Playfair Display',bfont:'Inter',hs:'line',hshow:true,empty:false,
+     secs:[{n:'Starters',s:''},{n:'Main Course',s:''},{n:'Breads',s:''},{n:'Beverages',s:''},{n:'Desserts',s:''}]},
+  ai:{key:'',model:'gpt-4o-mini',speak:false,lang:'en-IN'}
+};
+let S=load();
+function load(){try{const s=JSON.parse(localStorage.getItem('fp3'));if(s)return{...defaults,...s,biz:{...defaults.biz,...s.biz},d:{...defaults.d,...s.d},ai:{...defaults.ai,...s.ai}};}catch(e){}return JSON.parse(JSON.stringify(defaults));}
+function save(){try{localStorage.setItem('fp3',JSON.stringify(S));}catch(e){alert('Storage is full — try smaller photos or delete a few.');}sync();}
+
+/* ==================== ROUTER / NAV ==================== */
+const PAGES=[['menu','📋 My Menu',pgMenu],['designer','🎨 Menu Designer',pgDesigner],['preview','👁 Preview',pgPreview],['price','🧮 Price Calculator',pgPrice],['ai','🤖 AI Assistant',pgAI],['share','📱 QR & Reviews',pgShare]];
+let page='menu';
+function nav(p){page=p;$('nav').innerHTML=PAGES.map(x=>`<div class="tab ${x[0]===p?'on':''}" onclick="nav('${x[0]}')">${x[1]}</div>`).join('');PAGES.find(x=>x[0]===p)[2]();side(false);window.scrollTo(0,0);}
+function side(o){$('side').classList.toggle('-translate-x-full',!o);$('ov').classList.toggle('hidden',!o);}
+
+/* ==================== PHOTO HELPER ==================== */
+function readPhoto(file,cb){
+  if(!file)return;
+  const rd=new FileReader();
+  rd.onload=e=>{const im=new Image();im.onload=()=>{const k=Math.min(1,700/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.82));};im.src=e.target.result;};
+  rd.readAsDataURL(file);
+}
+
+/* ==================== MY MENU ==================== */
+let draftPhoto='';
+function pgMenu(){
+  $('page').innerHTML=`<h1 class="text-2xl font-extrabold mb-1">My Menu</h1><p class="text-sm text-slate-500 mb-4">Add your dishes with a photo. Then open <b>Menu Designer</b> to pick a layout.</p>
+  <div class="card p-4 mb-4"><div class="grid sm:grid-cols-6 gap-3 items-end">
+    <label class="btn gho cursor-pointer sm:col-span-1" id="dp-btn">${draftPhoto?'✅ Photo ready':'📷 Take / pick photo'}<input type="file" accept="image/*" capture="environment" class="hidden" onchange="readPhoto(this.files[0],d=>{draftPhoto=d;$('dp-btn').firstChild.textContent='✅ Photo ready'})"></label>
+    <div class="sm:col-span-1"><span class="lbl">Dish name</span><input id="n-name" class="inp" placeholder="Enter dish name"></div>
+    <div><span class="lbl">Price (${CUR})</span><input id="n-price" type="number" class="inp" placeholder="Price"></div>
+    <div><span class="lbl">Section</span><select id="n-sec" class="inp">${secOpts('')}</select></div><div class="sm:col-span-1"><span class="lbl">Short description</span><input id="n-desc" class="inp" placeholder="optional"></div>
+    <button class="btn pri" onclick="addItem()">➕ Add dish</button></div></div>
+  <div class="card p-2">${S.items.map((it,i)=>`<div class="flex items-center gap-3 p-3 border-b last:border-0 border-slate-100 flex-wrap">
+    <label class="w-14 h-14 rounded-xl bg-slate-100 overflow-hidden flex items-center justify-center cursor-pointer text-xl shrink-0">${it.photo?`<img src="${it.photo}" class="w-full h-full object-cover">`:'📷'}<input type="file" accept="image/*" capture="environment" class="hidden" onchange="readPhoto(this.files[0],d=>{S.items[${i}].photo=d;save();pgMenu()})"></label>
+    <div class="flex-1 min-w-36"><input class="inp !font-semibold" value="${esc(it.name)}" onchange="S.items[${i}].name=this.value;save()"><input class="inp mt-1 !text-xs" value="${esc(it.desc)}" placeholder="description" onchange="S.items[${i}].desc=this.value;save()"></div>
+    <select class="inp !w-32" onchange="S.items[${i}].sec=this.value;save()">${secOpts(it.sec)}</select><input type="number" class="inp !w-24" value="${it.price}" onchange="S.items[${i}].price=+this.value||0;save()">
+    <button class="btn gho" onclick="if(confirm('Delete this dish?')){S.items.splice(${i},1);save();pgMenu()}">🗑</button></div>`).join('')||'<p class="p-6 text-center text-slate-400 text-sm">No dishes yet — add your first one above.</p>'}</div>
+  <div class="mt-4"><button class="btn pri" onclick="nav('designer')">🎨 Design my menu →</button></div>`;
+}
+function addItem(){
+  const n=$('n-name').value.trim();if(!n){alert('Enter a dish name.');return;}
+  S.items.push({id:Date.now(),name:n,price:+$('n-price').value||0,desc:$('n-desc').value.trim(),photo:draftPhoto,sec:$('n-sec').value,on:true});
+  draftPhoto='';save();pgMenu();
+}
+
+/* ==================== MENU DESIGNER ==================== */
+// name, bg, text, accent, light text, card
+const TD=[['spice','Spice','#FFF8EC','#2B1B12','#B3261E','#8A7766','#FFFFFF'],['night','Midnight','#14181F','#F2EFE8','#E9B949','#8C93A0','#1E242E'],['fresh','Fresh','#F1F8F1','#10301C','#15803D','#5E7F6A','#FFFFFF'],['mono','Mono','#FFFFFF','#111111','#111111','#777777','#F4F4F4'],
+['ocean','Ocean','#EEF6FB','#0B2A3C','#0E7490','#5B7F92','#FFFFFF'],['rose','Rose','#FFF1F2','#4C0519','#E11D48','#9F6B73','#FFFFFF'],['sunset','Sunset','#FFF4E6','#431407','#EA580C','#9A6B4B','#FFFFFF'],['forest','Forest','#10231A','#E8F3EA','#6EE7A0','#8FB5A0','#17342A'],
+['berry','Berry','#FAF5FF','#2E1065','#9333EA','#7C6A9B','#FFFFFF'],['coffee','Coffee','#F5ECE3','#3B2416','#8B5A2B','#8C7462','#FFFFFF'],['charcoal','Charcoal','#1F2937','#F9FAFB','#F97316','#9CA3AF','#2B3645'],['mint','Mint','#ECFDF5','#064E3B','#059669','#5E8F7C','#FFFFFF'],
+['lemon','Lemon','#FEFCE8','#422006','#CA8A04','#8A7A3E','#FFFFFF'],['chalk','Chalkboard','#202622','#FFFFFF','#FACC15','#A8B0AA','#2B332E'],['sky','Sky','#F0F9FF','#0C4A6E','#0284C7','#6B8FA8','#FFFFFF'],['blush','Blush','#FDF2F8','#500724','#DB2777','#A16B86','#FFFFFF'],
+['maroon','Royal Maroon','#4A0E0E','#FDF3E1','#E5B567','#C9A58A','#5E1A1A'],['olive','Olive','#F6F5E8','#2F3318','#6B7F1E','#7F8460','#FFFFFF'],['navy','Navy Gold','#0F1B3D','#EEF2FF','#FBBF24','#93A0C8','#18274F'],['cream','Cream','#FFFDF7','#3A2E26','#C2410C','#8F8378','#FFF6E8']];
+const THEMES={};TD.forEach(([k,n,bg,fg,ac,mut,card])=>THEMES[k]={n,bg,fg,ac,mut,card});
+const TH=()=>S.d.theme==='custom'?{...THEMES.spice,...S.d.custom}:(THEMES[S.d.theme]||THEMES.spice);
+const CK=[['bg','Background'],['fg','Text'],['ac','Accent / prices'],['mut','Light text'],['card','Cards']];
+const HFONTS=['Playfair Display','Poppins','Lobster','Pacifico','Oswald','Cormorant Garamond','Merriweather','Montserrat','Dancing Script','Inter'];
+const BFONTS=['Inter','Poppins','Merriweather','Montserrat','Cormorant Garamond','Oswald'];
+const SERIF=['Playfair Display','Cormorant Garamond','Merriweather'],CURS=['Lobster','Pacifico','Dancing Script'];
+const fcss=n=>"'"+n+"',"+(SERIF.includes(n)?'serif':CURS.includes(n)?'cursive':'sans-serif');
+const LAYOUTS={list:'📃 Classic list',grid:'🖼 Photo grid',hero:'⭐ Hero dish',split:'↔ Zig-zag',min:'🔤 Text only',dots:'··· Dotted price',tiles:'🧱 Photo tiles',card:'🃏 Cards',trio:'⚪ Round trio',board:'🪧 Centered board'};
+const HS={line:'Underline',band:'Colour band',center:'Centered lines',box:'Boxed',side:'Side bar',script:'Elegant script',dots:'Dotted',pill:'Pill',double:'Double line',ribbon:'Ribbon',caps:'Spaced caps',bar:'Short bar',stamp:'Stamp',brackets:'Brackets'};
+const PRESETS=['Starters','Main Course','Rice & Biryani','Breads','Beverages','Desserts','Snacks','Combos','Soups','Chaat','Tandoor','Chinese','Pizza','Burgers','Shakes','Thali'];
+const ph=it=>it.photo?`<img src="${it.photo}" alt="">`:'<div class="ph">🍽</div>';
+const themeVars=t=>`--bg:${t.bg};--fg:${t.fg};--ac:${t.ac};--mut:${t.mut};--card:${t.card};--hf:${fcss(S.d.hfont)};--bf:${fcss(S.d.bfont)}`;
+const secOpts=sel=>S.d.secs.map(x=>`<option value="${esc(x.n)}" ${x.n===sel?'selected':''}>${esc(x.n)}</option>`).join('');
+const secHead=(n,sub,hs)=>`<div class="sec h-${hs||S.d.hs}"><div class="sh">${esc(n)}</div>${sub?`<div class="ss">${esc(sub)}</div>`:''}</div>`;
+function bodyHTML(its,L,first){
+  if(!its.length)return '<p class="ds" style="text-align:center;font-style:italic">Dishes coming soon</p>';
+  const row=i=>`<div class="bd"><div class="nm">${esc(i.name)}</div><div class="ds">${esc(i.desc)}</div></div>`;
+  let b='';
+  if(L==='list')b=its.map(i=>`<div class="it"><div class="th">${ph(i)}</div>${row(i)}<div class="pr">${money(i.price)}</div></div>`).join('');
+  if(L==='grid')b=its.map(i=>`<div class="it"><div class="th">${ph(i)}</div><div class="bd"><div><div class="nm">${esc(i.name)}</div><div class="ds">${esc(i.desc)}</div></div><div class="pr">${money(i.price)}</div></div></div>`).join('');
+  if(L==='hero'){const h=first?its[0]:null;b=(h?`<div class="big">${ph(h)}<div class="cap"><div><div style="font-size:11px;opacity:.8">Chef's pick</div><div style="font-size:20px;font-weight:700">${esc(h.name)}</div></div><div class="pr">${money(h.price)}</div></div></div>`:'')+(first?its.slice(1):its).map(i=>`<div class="it">${row(i)}<div class="pr">${money(i.price)}</div></div>`).join('');}
+  if(L==='split')b=its.map(i=>`<div class="it"><div class="th">${ph(i)}</div><div class="bd"><div class="nm">${esc(i.name)}</div><div class="ds">${esc(i.desc)}</div><div class="pr" style="margin-top:4px">${money(i.price)}</div></div></div>`).join('');
+  if(L==='min')b=its.map(i=>`<div class="it"><div class="rw"><span class="nm">${esc(i.name)}</span><span class="pr">${money(i.price)}</span></div><div class="ds">${esc(i.desc)}</div></div>`).join('');
+  if(L==='dots')b=its.map(i=>`<div class="it"><div class="rw"><span class="nm">${esc(i.name)}</span><span class="dl"></span><span class="pr">${money(i.price)}</span></div><div class="ds">${esc(i.desc)}</div></div>`).join('');
+  if(L==='tiles')b=its.map(i=>`<div class="it">${ph(i)}<div class="cap"><div class="nm">${esc(i.name)}</div><div class="pr">${money(i.price)}</div></div></div>`).join('');
+  if(L==='card')b=its.map(i=>`<div class="it"><div class="th">${ph(i)}</div>${row(i)}<div class="pr">${money(i.price)}</div></div>`).join('');
+  if(L==='trio')b=its.map(i=>`<div class="it"><div class="th">${ph(i)}</div><div class="nm">${esc(i.name)}</div><div class="pr">${money(i.price)}</div></div>`).join('');
+  if(L==='board')b=its.map(i=>`<div class="it"><div class="nm">${esc(i.name)} <span class="pr">· ${money(i.price)}</span></div><div class="ds">${esc(i.desc)}</div></div>`).join('');
+  return `<div class="l-${L}">${b}</div>`;
+}
+function groups(){
+  const on=S.items.filter(i=>i.on!==false),names=S.d.secs.map(x=>x.n);
+  return S.d.secs.map((x,k)=>({n:x.n,s:x.s,its:on.filter(i=>i.sec===x.n||(k===0&&!names.includes(i.sec)))})).filter(g=>g.its.length||S.d.empty);
+}
+const emptySecs=()=>S.d.secs.filter(x=>!S.items.some(i=>i.on!==false&&i.sec===x.n)).map(x=>x.n);
+const emptyNote=()=>{const e=emptySecs();return e.length&&!S.d.empty?`<div class="rounded-xl bg-amber-50 text-amber-800 text-xs p-3 mb-3">Hidden (no dishes yet): <b>${e.map(esc).join(', ')}</b>. Give dishes these sections (step 6) or turn on “Show empty sections”.</div>`:'';};
+function menuHTML(){
+  const t=TH(),L=S.d.layout,g=groups(),d=S.d;
+  const body=g.map((x,k)=>(d.hshow===false?'':secHead(x.n,x.s))+bodyHTML(x.its,L,k===0)).join('')||'<p style="text-align:center;color:var(--mut)">No dishes selected yet.</p>';
+  const sub=[S.biz.name,d.tag].filter(Boolean).map(esc).join(' · ');
+  return `<div class="mc" style="${themeVars(t)}">${d.cover?`<div class="cv"><img src="${d.cover}" alt=""></div>`:''}${d.logo?`<div class="lg"><img src="${d.logo}" alt=""></div>`:''}<h1>${esc(d.title)}</h1><div class="tg">${sub}</div>${body}${d.slogan?`<div class="sl">${esc(d.slogan)}</div>`:''}${d.contact?`<div class="ct">${esc(d.contact)}</div>`:''}</div>`;
+}
+function pgDesigner(){
+  const t=TH(),have=S.d.secs.map(x=>x.n),d=S.d;
+  $('page').innerHTML=`<div class="flex flex-wrap items-center justify-between gap-2 mb-4"><h1 class="text-2xl font-extrabold">Menu Designer</h1>
+    <div class="flex gap-2 flex-wrap"><button class="btn gho" onclick="nav('preview')">👁 Preview</button><button class="btn gho" onclick="window.print()">🖨 Print / PDF</button><button class="btn pri" onclick="dlMenu()">⬇ Download image</button></div></div>
+  <div class="grid lg:grid-cols-5 gap-5"><div class="lg:col-span-2 space-y-4">
+    <div class="card p-4"><span class="lbl">1 · Your restaurant details</span>
+      <input class="inp mb-2" placeholder="Restaurant name" value="${esc(S.biz.name)}" oninput="S.biz.name=this.value;save();redraw()">
+      <input class="inp mb-2" placeholder="Menu title (e.g. Our Menu)" value="${esc(d.title)}" oninput="S.d.title=this.value;save();redraw()">
+      <input class="inp mb-2" placeholder="Tagline (e.g. Fresh · Homestyle)" value="${esc(d.tag)}" oninput="S.d.tag=this.value;save();redraw()">
+      <input class="inp mb-2" placeholder="Slogan at the bottom (e.g. Taste the tradition)" value="${esc(d.slogan)}" oninput="S.d.slogan=this.value;save();redraw()">
+      <textarea class="inp mb-2" rows="2" placeholder="Address / phone / Instagram" oninput="S.d.contact=this.value;save();redraw()">${esc(d.contact)}</textarea>
+      <div class="flex flex-wrap gap-2"><label class="btn gho cursor-pointer">🏷 ${d.logo?'Change':'Add'} logo<input type="file" accept="image/*" class="hidden" onchange="readPhoto(this.files[0],v=>{S.d.logo=v;save();pgDesigner()})"></label>
+      <label class="btn gho cursor-pointer">🖼 ${d.cover?'Change':'Add'} cover photo<input type="file" accept="image/*" class="hidden" onchange="readPhoto(this.files[0],v=>{S.d.cover=v;save();pgDesigner()})"></label>
+      ${d.logo?'<button class="btn gho" onclick="S.d.logo=\'\';save();pgDesigner()">✕ Logo</button>':''}${d.cover?'<button class="btn gho" onclick="S.d.cover=\'\';save();pgDesigner()">✕ Cover</button>':''}</div></div>
+    <div class="card p-4"><span class="lbl">2 · Pick a layout (${Object.keys(LAYOUTS).length} styles)</span><div class="grid grid-cols-2 gap-2">${Object.entries(LAYOUTS).map(([k,v])=>`<button class="btn gho ${d.layout===k?'sel':''}" onclick="setD('layout','${k}')">${v}</button>`).join('')}</div></div>
+    <div class="card p-4"><span class="lbl">3 · Colours (${TD.length} ready-made + your own)</span>
+      <div class="flex flex-wrap gap-2 mb-3">${TD.map(x=>`<button title="${x[1]}" onclick="setD('theme','${x[0]}')" class="w-11 h-11 rounded-xl border ${d.theme===x[0]?'sel':''}" style="background:linear-gradient(135deg,${x[2]} 50%,${x[4]} 50%)"></button>`).join('')}
+      <button title="My colours" onclick="setD('theme','custom')" class="w-11 h-11 rounded-xl border text-lg ${d.theme==='custom'?'sel':''}" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)"></button></div>
+      <span class="lbl">Make your own colours (tap a box)</span><div class="grid grid-cols-2 gap-2 mb-3">${CK.map(([k,l])=>`<label class="text-xs font-semibold text-slate-500 flex items-center gap-2"><input type="color" value="${t[k]}" class="w-10 h-9 p-0 border rounded cursor-pointer" oninput="liveC('${k}',this.value)" onchange="pgDesigner()">${l}</label>`).join('')}</div>
+      <div class="grid grid-cols-2 gap-2"><div><span class="lbl">Heading font</span><select class="inp" onchange="setD('hfont',this.value)">${HFONTS.map(f=>`<option ${d.hfont===f?'selected':''}>${f}</option>`).join('')}</select></div>
+      <div><span class="lbl">Text font</span><select class="inp" onchange="setD('bfont',this.value)">${BFONTS.map(f=>`<option ${d.bfont===f?'selected':''}>${f}</option>`).join('')}</select></div></div></div>
+    <div class="card p-4"><span class="lbl">4 · Heading style (${Object.keys(HS).length} styles)</span><div class="grid grid-cols-2 gap-2">${Object.entries(HS).map(([k,v])=>`<button class="rounded-xl border p-1 ${d.hs===k?'sel':''}" title="${v}" onclick="setD('hs','${k}')"><div class="mc samp" style="${themeVars(t)};padding:10px 12px;border-radius:10px;text-align:left">${secHead('Beverages','Hot &amp; cold',k)}</div></button>`).join('')}</div>
+      <label class="flex items-center gap-2 text-sm mt-3"><input type="checkbox" ${d.hshow!==false?'checked':''} onchange="S.d.hshow=this.checked;save();redraw()"> Show section headings</label></div>
+    <div class="card p-4"><span class="lbl">5 · Sections &amp; sub headings</span><p class="text-xs text-slate-500 mb-2">A section shows in the menu once it has dishes. Choose each dish's section in step 6.</p>
+      <div class="flex flex-wrap gap-2 mb-3">${PRESETS.filter(x=>!have.includes(x)).map(x=>`<button class="btn gho !py-1 !text-xs" onclick="secAdd(this.dataset.n)" data-n="${esc(x)}">+ ${esc(x)}</button>`).join('')}<button class="btn gho !py-1 !text-xs" onclick="secAddCustom()">✏ Own name</button></div>
+      ${S.d.secs.map((x,i)=>`<div class="flex gap-1 mb-2"><div class="flex-1"><input class="inp mb-1" value="${esc(x.n)}" oninput="secEdit(${i},'n',this.value)"><input class="inp !text-xs" placeholder="Sub heading (optional)" value="${esc(x.s)}" oninput="secEdit(${i},'s',this.value)"></div><div class="flex flex-col gap-1"><button class="btn gho !p-1" onclick="secMove(${i},-1)">▲</button><button class="btn gho !p-1" onclick="secMove(${i},1)">▼</button></div><button class="btn gho" onclick="secDel(${i})">✕</button></div>`).join('')}
+      <label class="flex items-center gap-2 text-sm mt-1"><input type="checkbox" ${d.empty?'checked':''} onchange="S.d.empty=this.checked;save();pgDesigner()"> Show empty sections</label><div id="en" class="mt-2">${emptyNote()}</div></div>
+    <div class="card p-4"><span class="lbl">6 · Dishes &amp; their section</span>${S.items.map((it,i)=>`<div class="flex items-center gap-2 text-sm py-1"><input type="checkbox" ${it.on!==false?'checked':''} onchange="S.items[${i}].on=this.checked;save();redraw()"><span class="flex-1 truncate">${esc(it.name)} ${it.photo?'📷':''}</span><select class="inp !w-auto !py-1 !text-xs" onchange="S.items[${i}].sec=this.value;save();redraw()">${secOpts(it.sec)}</select></div>`).join('')||'<p class="text-sm text-slate-400">Add dishes in My Menu first.</p>'}
+      <button class="btn gho mt-2" onclick="nav('menu')">📷 Add dish / photo</button></div>
+  </div><div class="lg:col-span-3"><div class="lg:sticky lg:top-4"><div class="card p-3 overflow-auto"><div id="canvas" style="max-width:520px;margin:0 auto">${menuHTML()}</div></div></div></div></div>`;
+}
+function secAdd(n){if(!S.d.secs.some(x=>x.n===n))S.d.secs.push({n,s:''});save();pgDesigner();}
+function secAddCustom(){const n=(prompt('Section name (e.g. Chaat, Soups):')||'').trim();if(n)secAdd(n);}
+function secMove(i,d){const j=i+d;if(j<0||j>=S.d.secs.length)return;[S.d.secs[i],S.d.secs[j]]=[S.d.secs[j],S.d.secs[i]];save();pgDesigner();}
+function secDel(i){if(S.d.secs.length<2){alert('Keep at least one section.');return;}S.d.secs.splice(i,1);save();pgDesigner();}
+function secEdit(i,k,v){const o=S.d.secs[i].n;S.d.secs[i][k]=v;if(k==='n')S.items.forEach(it=>{if(it.sec===o)it.sec=v;});save();redraw();}
+function setD(k,v){S.d[k]=v;save();pgDesigner();}
+function liveC(k,v){if(S.d.theme!=='custom'){S.d.custom={...TH()};S.d.theme='custom';}S.d.custom[k]=v;save();redraw();}
+function redraw(){$('canvas').innerHTML=menuHTML();const e=$('en');if(e)e.innerHTML=emptyNote();}
+function dlMenu(){
+  if(!window.html2canvas){alert('Download needs internet to load html2canvas. Use Print / PDF instead.');return;}
+  html2canvas($('canvas'),{scale:2,useCORS:true}).then(c=>{const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='menu.png';a.click();});
+}
+
+/* ==================== BACKEND (optional) ==================== */
+const API={ok:false,ai:false,pin:false};
+async function api(path,opt={}){
+  const h={'Content-Type':'application/json'};if(S.pin)h['x-pin']=S.pin;
+  const r=await fetch((S.apiBase||'')+path,{...opt,headers:h});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.error||('Error '+r.status));
+  return j;
+}
+async function detect(){try{const j=await api('/api/status');API.ok=true;API.ai=j.ai;API.pin=j.pinRequired;}catch(e){API.ok=false;}}
+let syncT;
+function sync(){if(!API.ok)return;clearTimeout(syncT);syncT=setTimeout(publish,900);}
+async function publish(manual){
+  if(!API.ok){if(manual)alert('Backend is not running. Start it with: node server.js');return;}
+  try{await api('/api/menu',{method:'POST',body:JSON.stringify({biz:S.biz,items:S.items,d:S.d})});if(manual)alert('Menu published ✅ Customers now see the latest version.');}
+  catch(e){if(manual)alert('Could not publish: '+e.message);}
+}
+
+/* ==================== PREVIEW ==================== */
+function pgPreview(){
+  $('page').innerHTML=`<div class="flex flex-wrap items-center justify-between gap-2 mb-5"><div><h1 class="text-2xl font-extrabold">Preview</h1><p class="text-sm text-slate-500">This is how customers will see your menu on their phone. It shows every change from Menu Designer.</p></div>
+  <div class="flex gap-2"><button class="btn gho" onclick="nav('designer')">🎨 Change design</button><button class="btn pri" onclick="nav('share')">📱 Share with QR</button></div></div>
+  <div class="max-w-sm mx-auto">${emptyNote()}</div>
+  <div class="phone mx-auto"><div class="screen">${menuHTML()}<div class="p-4 text-center text-xs text-slate-400">⭐ Customer reviews &amp; feedback appear below your menu</div></div></div>`;
+}
+
+/* ==================== REVIEWS ==================== */
+async function getReviews(){
+  if(API.ok){try{return(await api('/api/reviews')).reviews;}catch(e){}}
+  try{return JSON.parse(localStorage.getItem('fp3r'))||[];}catch(e){return[];}
+}
+async function postReview(r){
+  if(API.ok)return api('/api/reviews',{method:'POST',body:JSON.stringify(r)});
+  const l=await getReviews();l.unshift({...r,id:Date.now(),ts:Date.now()});localStorage.setItem('fp3r',JSON.stringify(l));
+}
+const stars=n=>'★'.repeat(Math.round(n))+'☆'.repeat(5-Math.round(n));
+function reviewsHTML(list){
+  if(!list.length)return '<p class="text-sm text-slate-400">No reviews yet. Be the first to share your feedback.</p>';
+  const avg=list.reduce((a,r)=>a+r.rating,0)/list.length;
+  return `<div class="flex items-center gap-3 mb-3"><div class="text-3xl font-extrabold">${avg.toFixed(1)}</div><div><div class="text-amber-500 text-lg">${stars(avg)}</div><div class="text-xs text-slate-500">${list.length} review${list.length>1?'s':''}</div></div></div>`+
+  list.map(r=>`<div class="border-t border-slate-100 py-3"><div class="flex justify-between text-sm"><b>${esc(r.name||'Guest')}</b><span class="text-amber-500">${stars(r.rating)}</span></div><p class="text-sm text-slate-600 mt-1">${esc(r.comment)}</p><div class="text-xs text-slate-400 mt-1">${new Date(r.ts).toLocaleDateString()}</div></div>`).join('');
+}
+let RT=0;
+const starRow=()=>[1,2,3,4,5].map(n=>`<span onclick="setRT(${n})">${n<=RT?'★':'☆'}</span>`).join('');
+function setRT(n){RT=n;$('rs').innerHTML=starRow();}
+function formHTML(){return `<div class="card p-4"><h3 class="font-bold mb-2">How was your experience?</h3><div id="rs" class="text-3xl text-amber-400 mb-2 cursor-pointer select-none">${starRow()}</div>
+  <input id="rv-name" class="inp mb-2" placeholder="Your name (optional)" maxlength="40"><textarea id="rv-text" class="inp mb-2" rows="3" maxlength="500" placeholder="Tell us what you liked or what we can improve"></textarea>
+  <button class="btn pri w-full" onclick="sendReview()">Send feedback</button></div>`;}
+async function sendReview(){
+  const c=$('rv-text').value.trim();
+  if(!RT){alert('Please tap the stars to rate.');return;}
+  if(c.length<3){alert('Please write a short comment.');return;}
+  try{await postReview({name:$('rv-name').value.trim()||'Guest',rating:RT,comment:c});RT=0;alert('Thank you for your feedback! 🙏');customerView();}
+  catch(e){alert(e.message);}
+}
+
+/* ==================== CUSTOMER VIEW (what the QR opens) ==================== */
+async function customerView(){
+  $('side').style.display='none';$('mh').style.display='none';$('wrap').classList.remove('md:ml-60');
+  if(API.ok){try{const m=await api('/api/menu');if(m.items){S.biz=m.biz||S.biz;S.items=m.items;S.d={...S.d,...m.d};}}catch(e){}}
+  else if(location.hash.startsWith('#m='))unpack(location.hash.slice(3));
+  const list=await getReviews();
+  $('page').innerHTML=`<div class="max-w-md mx-auto space-y-4"><div class="card overflow-hidden">${menuHTML()}</div>
+  <div class="card p-4"><h3 class="font-bold mb-2">Reviews</h3>${reviewsHTML(list)}</div>${formHTML()}
+  <p class="text-center text-xs text-slate-400 pb-6">Reviews come from real customers. The restaurant cannot edit or delete them.</p></div>`;
+}
+
+/* ==================== SHARE: QR + REVIEWS ==================== */
+const b64e=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const b64d=t=>JSON.parse(decodeURIComponent(escape(atob(t.replace(/-/g,'+').replace(/_/g,'/')))));
+const pack=()=>b64e({b:S.biz.name,t:S.d.title,g:S.d.tag,l:S.d.layout,c:S.d.theme,cu:S.d.theme==='custom'?S.d.custom:0,h:S.d.hs,w:S.d.hshow!==false,e:!!S.d.empty,f:[S.d.hfont,S.d.bfont],sl:S.d.slogan,ct:S.d.contact,s:S.d.secs.map(x=>[x.n,x.s]),i:S.items.filter(i=>i.on!==false).map(i=>[i.name,i.price,i.desc,i.sec||''])});
+function unpack(h){try{const m=b64d(h);S.biz={...S.biz,name:m.b};S.d={...S.d,title:m.t,tag:m.g,layout:m.l,theme:m.c,custom:m.cu||S.d.custom,hs:m.h,hshow:m.w,empty:m.e,hfont:m.f[0],bfont:m.f[1],slogan:m.sl,contact:m.ct,logo:'',cover:'',secs:m.s.map(x=>({n:x[0],s:x[1]}))};S.items=m.i.map((x,k)=>({id:k+1,name:x[0],price:x[1],desc:x[2],sec:x[3],photo:'',on:true}));}catch(e){}}
+const hosted=()=>/^https?:/.test(location.protocol);
+const baseURL=()=>hosted()?location.origin+location.pathname:(S.host||'').split('#')[0].split('?')[0];
+function autoLink(){
+  const b=baseURL();if(!b)return '';
+  if(API.ok)return b+'?view=menu'+(S.apiBase?'&api='+encodeURIComponent(S.apiBase):'');
+  return b+'?view=menu#m='+pack();
+}
+async function setBase(v){S.apiBase=v.trim().replace(/\/+$/,'');S.pub='';save();await detect();pgShare();}
+async function pgShare(){
+  const url=S.pub||autoLink();
+  $('page').innerHTML=`<h1 class="text-2xl font-extrabold mb-4">Share &amp; Reviews</h1><div class="grid md:grid-cols-2 gap-5"><div class="space-y-5">
+  <div class="card p-5"><h3 class="font-bold">QR code for your menu</h3><p class="text-sm text-slate-500 mb-3">Print it for your tables. Customers scan it to see your menu and leave feedback.</p>
+    ${hosted()?'':`<div class="rounded-xl bg-amber-50 text-amber-800 text-sm p-3 mb-3"><b>Your website link needed.</b> This file is opened from your device, so a QR cannot point to it. Upload this file to any free website host (Netlify, GitHub Pages…) and paste its link here.<input class="inp mt-2" placeholder="https://your-site.netlify.app/" value="${esc(S.host||'')}" onchange="S.host=this.value.trim();S.pub='';save();pgShare()"></div>`}
+    <span class="lbl">Link inside the QR</span><input id="pub" class="inp mb-3" value="${esc(url)}" placeholder="Paste your website link above to get the QR" oninput="S.pub=this.value.trim();save();drawQR()">
+    <div id="qr" class="flex justify-center items-center p-3 bg-white rounded-xl border mb-3" style="min-height:224px"></div>
+    <div class="flex flex-wrap gap-2"><button class="btn pri" onclick="dlQR()">⬇ Download QR</button><button class="btn gho" onclick="navigator.clipboard&&navigator.clipboard.writeText($('pub').value);alert('Link copied')">📋 Copy link</button><button class="btn gho" onclick="S.pub='';save();pgShare()">↺ Auto link</button>${API.ok?'<button class="btn gho" onclick="publish(true)">☁ Publish menu</button>':''}</div></div>
+  <div class="card p-5"><h3 class="font-bold">Backend (optional)</h3><p class="text-sm text-slate-500 mb-2">Leave empty if the app and server are on the same website. Otherwise paste your server address.</p>
+    <input class="inp" placeholder="https://your-server.onrender.com" value="${esc(S.apiBase||'')}" onchange="setBase(this.value)">
+    <p class="text-xs mt-3 ${API.ok?'text-green-700':'text-amber-700'}">${API.ok?'✅ Backend connected. Menu (with photos) and reviews are saved on the server.':'⚠ No backend found. The menu travels inside the QR link (text only, no photos) and reviews are saved only on the phone that writes them. Connect a backend for shared reviews.'}</p>
+    ${API.pin?`<span class="lbl mt-3">Owner PIN</span><input type="password" class="inp" value="${esc(S.pin||'')}" onchange="S.pin=this.value.trim();save()">`:''}</div></div>
+  <div class="card p-5 h-fit"><h3 class="font-bold mb-3">Customer reviews</h3><div id="rv">Loading…</div></div></div>`;
+  drawQR();$('rv').innerHTML=reviewsHTML(await getReviews());
+}
+function drawQR(){
+  const el=$('qr'),u=($('pub').value||'').trim();el.innerHTML='';
+  if(!u){el.innerHTML='<span class="text-sm text-slate-400 text-center px-4">Add your website link to create the QR</span>';return;}
+  if(!window.qrcode){el.innerHTML='<span class="text-sm text-amber-700">The QR library needs internet to load.</span>';return;}
+  let q;try{q=qrcode(0,'L');q.addData(u);q.make();}catch(e){el.innerHTML='<span class="text-sm text-amber-700 text-center px-4">The link is too long for a QR. Remove a few dishes or connect a backend.</span>';return;}
+  const n=q.getModuleCount(),cell=Math.max(2,Math.floor(720/(n+8))),sz=(n+8)*cell,cv=document.createElement('canvas');
+  cv.width=cv.height=sz;cv.id='qrc';cv.style.cssText='width:240px;height:240px;image-rendering:pixelated';
+  const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,sz,sz);x.fillStyle='#000';
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))x.fillRect((c+4)*cell,(r+4)*cell,cell,cell);
+  el.appendChild(cv);
+}
+function dlQR(){
+  const c=$('qrc');if(!c){alert('Create the QR first.');return;}
+  const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='menu-qr.png';a.click();
+}
+
+/* ==================== PRICE CALCULATOR ==================== */
+function engine(o){
+  const total=o.ing+o.lab+o.pack+o.over,m=Math.min(Math.max(o.margin,0),95)/100,costPrice=total/(1-m);
+  let lo,hi;
+  if(o.mmin&&o.mmax){const base=costPrice*.45+(o.mmin+o.mmax)/2*.55;lo=Math.max(r5(Math.min(base,costPrice)),Math.ceil(total)+1);hi=Math.max(r5(Math.max(base,costPrice*1.08)),lo+20);}
+  else{lo=r5(costPrice*.95);hi=r5(costPrice*1.08);}
+  const rec=r5((lo+hi)/2),profit=rec-total;
+  let st='ok';if(o.cur){if(o.cur>hi)st='over';else if(o.cur<lo)st='under';}
+  return{total,lo,hi,rec,profit,mg:profit/rec*100,st};
+}
+let PC={name:'',ings:[{n:'',c:''},{n:'',c:''}],lab:'',pack:'',mo:'',pl:'',margin:30,mmin:'',mmax:'',cur:''};
+const pcCard=(n,t,hint,body)=>`<div class="card p-4"><div class="flex gap-2 items-center mb-1"><span class="w-6 h-6 rounded-full bg-green-700 text-white text-xs font-bold flex items-center justify-center">${n}</span><h3 class="font-bold">${t}</h3></div>${hint?`<p class="text-xs text-slate-500 mb-3">${hint}</p>`:''}${body}</div>`;
+const pcField=(k,l,ph)=>`<div><span class="lbl">${l}</span><input type="number" min="0" class="inp" placeholder="${ph||''}" value="${PC[k]}" oninput="PC.${k}=this.value;calcPrice()"></div>`;
+function pgPrice(){
+  if(!PC.touched)PC.margin=S.biz.margin;
+  $('page').innerHTML=`<div class="flex flex-wrap justify-between items-center gap-2 mb-1"><h1 class="text-2xl font-extrabold">Price Calculator</h1><button class="btn gho" onclick="pcExample()">✨ Try an example</button></div>
+  <p class="text-sm text-slate-500 mb-4">Answer a few simple questions. The price on the right updates as you type.</p>
+  <div class="grid lg:grid-cols-5 gap-5"><div class="lg:col-span-3 space-y-4">
+    ${pcCard(1,'Which dish?','',`<input class="inp" placeholder="e.g. Paneer Tikka" value="${esc(PC.name)}" oninput="PC.name=this.value;calcPrice()">`)}
+    ${pcCard(2,'Ingredients for ONE plate',"List what goes into a single serving and what it costs you. Rough numbers are fine.",`<div id="ings"></div><button class="btn gho mt-1" onclick="PC.ings.push({n:'',c:''});ingRows()">➕ Add ingredient</button><div class="text-right text-sm mt-2">Ingredients total: <b id="ing-t">${CUR}0</b></div>`)}
+    ${pcCard(3,'Other costs',"Labor and packaging are per plate. For rent, gas and electricity, enter the monthly total and how many plates you sell. We do the division.",`<div class="grid grid-cols-2 gap-3">${pcField('lab','Cook / labor per plate')}${pcField('pack','Packaging per plate')}${pcField('mo','Monthly rent + gas + electricity')}${pcField('pl','Plates sold per month')}</div><div class="text-xs text-slate-500 mt-2" id="oh"></div>`)}
+    ${pcCard(4,'How much profit do you want?','',`<input type="range" min="10" max="60" value="${PC.margin}" class="w-full" oninput="PC.margin=+this.value;PC.touched=1;calcPrice()"><div class="text-sm mt-1" id="mg-t"></div>`)}
+    ${pcCard(5,'Compare with others (optional)',"What do similar places near you charge? Leave blank if you don't know.",`<div class="grid grid-cols-3 gap-3">${pcField('mmin','Lowest nearby')}${pcField('mmax','Highest nearby')}${pcField('cur','Your price now')}</div>`)}
+  </div><div class="lg:col-span-2"><div id="p-out" class="card p-5 lg:sticky lg:top-4"></div></div></div>`;
+  ingRows();calcPrice();
+}
+function ingRows(){
+  $('ings').innerHTML=PC.ings.map((g,i)=>`<div class="flex gap-2 mb-2"><input class="inp" placeholder="Ingredient (e.g. Chicken 500g)" value="${esc(g.n)}" oninput="PC.ings[${i}].n=this.value"><input type="number" min="0" class="inp !w-28" placeholder="${CUR} cost" value="${g.c}" oninput="PC.ings[${i}].c=this.value;calcPrice()"><button class="btn gho" onclick="PC.ings.splice(${i},1);ingRows();calcPrice()">✕</button></div>`).join('');
+}
+function calcPrice(){
+  const n=x=>+x||0,ing=PC.ings.reduce((a,g)=>a+n(g.c),0),lab=n(PC.lab),pack=n(PC.pack),pl=n(PC.pl),over=pl>0?n(PC.mo)/pl:0;
+  $('ing-t').textContent=money(ing);
+  $('oh').textContent='Rent, gas & electricity per plate: '+(pl>0?money(over):'enter plates sold per month');
+  $('mg-t').innerHTML=`Out of every <b>${CUR}100</b> you charge, <b>${CUR}${PC.margin}</b> is your profit.`;
+  const out=$('p-out'),total=ing+lab+pack+over;
+  if(total<=0){out.innerHTML='<p class="text-sm text-slate-400">Add your ingredient costs to see a fair price.</p>';return;}
+  const r=engine({ing,lab,pack,over,margin:PC.margin,cur:n(PC.cur)||null,mmin:n(PC.mmin)||null,mmax:n(PC.mmax)||null});
+  const parts=[['Ingredients',ing,'#15803D'],['Labor',lab,'#2563EB'],['Packaging',pack,'#F59E0B'],['Rent & bills',over,'#94A3B8'],['Your profit',Math.max(r.profit,0),'#7C3AED']];
+  const vd={ok:'',over:`<div class="rounded-xl bg-amber-50 text-amber-800 text-sm p-3 mt-3">⚠ Your current price (${money(PC.cur)}) is above our range. Customers may find it expensive.</div>`,under:`<div class="rounded-xl bg-blue-50 text-blue-800 text-sm p-3 mt-3">↓ Your current price (${money(PC.cur)}) is below our range. You may be losing profit.</div>`}[r.st];
+  out.innerHTML=`<div class="text-xs font-bold text-green-700">${esc(PC.name||'Your dish')}</div>
+  <div class="text-4xl font-extrabold mt-1">${money(r.rec)}</div><div class="text-sm text-slate-500">recommended price per plate</div>
+  <p class="text-sm mt-3">It costs you <b>${money(total)}</b> to make one plate. At <b>${money(r.rec)}</b> you keep <b>${money(r.profit)}</b> (${r.mg.toFixed(0)}%) as profit. A safe range is <b>${money(r.lo)}–${money(r.hi)}</b>.</p>
+  ${pl>0?`<p class="text-sm mt-2">Selling ${pl} plates a month would earn about <b>${money(r.profit*pl)}</b> profit.</p>`:''}
+  <div class="flex h-4 rounded-full overflow-hidden mt-4">${parts.map(p=>`<div style="width:${p[1]/r.rec*100}%;background:${p[2]}"></div>`).join('')}</div>
+  <div class="mt-3 text-sm space-y-1">${parts.map(p=>`<div class="flex justify-between"><span><span class="inline-block w-2.5 h-2.5 rounded-full mr-2" style="background:${p[2]}"></span>${p[0]}</span><b>${money(p[1])}</b></div>`).join('')}</div>${vd}
+  <button class="btn pri w-full mt-4" onclick="pcAdd(${r.rec})">➕ Add to My Menu at ${money(r.rec)}</button>
+  <p class="text-xs text-slate-400 mt-3">An estimate from the numbers you entered. It does not guarantee profit.</p>`;
+}
+function pcAdd(p){S.items.push({id:Date.now(),name:PC.name.trim()||'New dish',price:p,desc:'',photo:'',sec:S.d.secs[0].n,on:true});save();nav('menu');}
+function pcExample(){PC={name:'Butter Chicken',ings:[{n:'Chicken 500g',c:110},{n:'Butter & cream',c:55},{n:'Spices, onion, tomato',c:25}],lab:25,pack:10,mo:60000,pl:3000,margin:30,mmin:240,mmax:280,cur:320,touched:1};pgPrice();}
+
+/* ==================== AI ASSISTANT (ChatGPT) ==================== */
+let chat=[],recog=null;
+const CHIPS=['How should I price a thali?','Give me 5 name ideas for my café','Write a Diwali offer for my restaurant','How can I reduce my food cost?'];
+function pgAI(){
+  const ready=API.ok&&API.ai;
+  $('page').innerHTML=`<div class="flex justify-between items-center mb-3"><h1 class="text-2xl font-extrabold">AI Assistant</h1><button class="btn gho" onclick="chat=[];pgAI()">🗑 Clear chat</button></div>
+  ${ready?'<div class="rounded-xl bg-green-50 text-green-800 text-sm p-3 mb-4">✅ ChatGPT is connected through your server. Just ask.</div>':`<div class="card p-4 mb-4"><h3 class="font-bold mb-1">Connect ChatGPT (one time)</h3><p class="text-sm text-slate-500 mb-3">Create a key at platform.openai.com/api-keys and paste it here.</p><input id="a-key" type="password" class="inp" placeholder="sk-..." value="${esc(S.ai.key)}" onchange="S.ai.key=this.value.trim();save()"><p class="text-xs text-slate-400 mt-2">It stays in this browser. For real use, set OPENAI_API_KEY on the server instead.</p></div>`}
+  <div class="card p-4 flex flex-col" style="min-height:55vh"><div id="a-log" class="flex-1 space-y-3 overflow-y-auto mb-3" style="max-height:50vh"></div>
+  <div id="chips" class="flex flex-wrap gap-2 mb-3">${CHIPS.map(c=>`<button class="btn gho !text-xs" onclick="ask(this.textContent)">${c}</button>`).join('')}</div>
+  <div class="flex gap-2"><button id="mic" class="btn gho" onclick="toggleMic()">🎤</button><input id="a-in" class="inp" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')ask()"><button class="btn pri" onclick="ask()">Send</button></div>
+  <div class="flex flex-wrap justify-between items-center gap-2 mt-2 text-xs text-slate-400"><span id="a-st">Tap 🎤 and speak, or type.</span>
+  <span class="flex items-center gap-3"><select class="inp !w-auto !py-1 !text-xs" onchange="S.ai.lang=this.value;save()">${[['en-IN','English'],['hi-IN','Hindi'],['pa-IN','Punjabi']].map(l=>`<option value="${l[0]}" ${S.ai.lang===l[0]?'selected':''}>${l[1]}</option>`).join('')}</select>
+  <label><input type="checkbox" ${S.ai.speak?'checked':''} onchange="S.ai.speak=this.checked;save()"> Read aloud</label></span></div></div>`;
+  if(chat.length){$('chips').style.display='none';chat.forEach(m=>bubble(m.role==='user'?'user':'ai',m.content));}
+  else bubble('ai','Hi! Ask me anything: pricing, menu ideas, costs, offers, or anything else.');
+}
+function bubble(r,t){const l=$('a-log');if(!l)return;l.insertAdjacentHTML('beforeend',`<div class="flex ${r==='user'?'justify-end':''}"><div class="${r==='user'?'bg-green-700 text-white':'bg-slate-100 text-slate-800'} rounded-2xl px-4 py-2.5 text-sm max-w-[85%] whitespace-pre-wrap">${esc(t)}</div></div>`);l.scrollTop=l.scrollHeight;}
+async function ask(t){
+  const inp=$('a-in'),q=(t||inp.value).trim();if(!q)return;
+  if(!(API.ok&&API.ai)&&!S.ai.key){bubble('ai','Please paste your OpenAI API key above first (one time).');return;}
+  inp.value='';$('chips').style.display='none';
+  chat.push({role:'user',content:q});bubble('user',q);bubble('ai','Thinking…');
+  const wait=$('a-log').lastElementChild;
+  const sys=`You are the ${BRAND} assistant, a friendly helper for a food-business owner. Answer any question on any topic. Reply in the language the user writes in (English, Hindi or Punjabi). Use simple words and keep answers short and practical. Business: ${S.biz.name||'not set'}. Currency: ${CUR}. Menu: ${S.items.map(i=>i.name+' '+CUR+i.price).join(', ')||'empty'}.`;
+  const msgs=[{role:'system',content:sys},...chat.slice(-20)];
+  try{
+    let data;
+    if(API.ok&&API.ai)data=await api('/api/chat',{method:'POST',body:JSON.stringify({model:S.ai.model,messages:msgs})});
+    else{const res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.ai.key},body:JSON.stringify({model:S.ai.model,messages:msgs})});data=await res.json();if(!res.ok)throw new Error(data.error?.message||('Error '+res.status));}
+    const a=data.choices[0].message.content;chat.push({role:'assistant',content:a});wait.remove();bubble('ai',a);
+    if(S.ai.speak&&window.speechSynthesis){const u=new SpeechSynthesisUtterance(a);u.lang=S.ai.lang;speechSynthesis.cancel();speechSynthesis.speak(u);}
+  }catch(e){chat.pop();wait.remove();bubble('ai','⚠ '+e.message+(e.message==='Failed to fetch'?'. Check your internet connection.':''));}
+}
+function toggleMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Voice input works in Chrome or Edge. You can type instead.');return;}
+  if(recog){recog.stop();return;}
+  recog=new SR();recog.lang=S.ai.lang;recog.interimResults=false;
+  $('mic').textContent='🔴';$('a-st').textContent='Listening… speak now';
+  const done=()=>{recog=null;const m=$('mic');if(m){m.textContent='🎤';$('a-st').textContent='Tap 🎤 and speak, or type.';}};
+  recog.onresult=e=>ask(e.results[0][0].transcript);recog.onend=done;recog.onerror=done;recog.start();
+}
+
+/* ==================== BOOT ==================== */
+(async()=>{
+  const q=new URLSearchParams(location.search);if(q.get('api'))S.apiBase=q.get('api');
+  await detect();
+  if(q.get('view')==='menu')customerView();else nav('menu');
+})();
+</script>
+</body>
+</html>
